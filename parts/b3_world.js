@@ -133,9 +133,10 @@ function sendAmorn(it){
   if(!it||sleepHour())return;var d=destFor(it);amorn.cur=d;amorn.destV++;amorn.idleT=0;
   setPath(amorn,d.x,d.z,d.node,d.face);amorn.mode='walk';amorn.sleepy=false;
 }
+var SLEEPX=SP?8.8:6.8; /* bed centre x */
 function sleepHour(){var h=TM.h;return h>=23||h<6}
 function goSleep(){
-  var d={node:'bed',x:6.8,z:-6.2,face:PI,mode:'sleep',text:'หลับอยู่ Zzz'};amorn.cur=d;amorn.destV++;
+  var d={node:'bed',x:SLEEPX,z:-6.2,face:PI,mode:'sleep',text:'หลับอยู่ Zzz'};amorn.cur=d;amorn.destV++;
   setPath(amorn,d.x,d.z,d.node,d.face);amorn.mode='walk';
 }
 function arrive(a){
@@ -171,7 +172,7 @@ function poseAgents(dt){
   if(swim){ /* laps */
     a.swimT=(a.swimT||0)+dt;var ph=(a.swimT*3.4)%24,dir=ph<12?1:-1;a.x=27+(dir>0?ph:24-ph);a.z=2.4+Math.sin(a.swimT*.9)*.4;a.ht=dir>0?PI/2:-PI/2;
   }
-  if(sleep){a.x=6.8;a.z=-9.3;a.ht=0}
+  if(sleep){a.x=SLEEPX;a.z=-9.3;a.ht=0}
   a.h=angLerp(a.h,a.ht,1-Math.exp(-(swim?30:11)*dt));
   var ty=swim?.98:(sleep?2.18:yAt(a.x,a.z));a.y+=(ty-a.y)*(1-Math.exp(-12*dt));
   a.phase+=dt*(moving?9:0);var s=Math.sin(a.phase)*.75,bob=moving?Math.abs(Math.sin(a.phase))*.08:0;

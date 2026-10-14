@@ -1,3 +1,8 @@
 [{"js":"__lh.setTime(13);__lh.setRoof(true);'theme '+__lh.theme","wait":9000,"shot":"shots/space_overview.png"},
 {"js":"document.querySelector('[data-f=apps]').click()","wait":9000,"shot":"shots/space_apps.png"},
-{"js":"document.querySelector('[data-f=life]').click()","wait":9000,"shot":"shots/space_life.png"}]
+{"js":"document.querySelector('[data-f=life]').click()","wait":9000,"shot":"shots/space_life.png"},
+{"js":"document.querySelector('[data-f=work]').click()","wait":9000,"shot":"shots/space_work.png"},
+{"js":"document.querySelector('[data-f=income]').click()","wait":9000,"shot":"shots/space_income.png"},
+{"js":"document.querySelector('[data-f=garden]').click()","wait":9000,"shot":"shots/space_garden.png"},
+{"js":"document.querySelector('[data-f=pool]').click()","wait":9000,"shot":"shots/space_pool.png"},
+{"js":"document.querySelector('[data-f=gym]').click()","wait":9000,"shot":"shots/space_gym.png"}]

@@ -237,7 +237,7 @@ function updCam(dt){
 }
 function resize(){renderer.setSize(window.innerWidth,window.innerHeight,false)}
 window.addEventListener('resize',resize);resize();
-function flyHome(){cs.gx=5;cs.gz=10;cs.gzoom=window.innerWidth<900?1.0:.86;st.filter='all'}
+function flyHome(){var m=window.innerWidth<900;cs.gx=SP?(m?6:9):5;cs.gz=SP?(m?4:2):10;cs.gzoom=m?1.0:(SP?.7:.86);st.filter='all'}
 function flyRoom(k){var r=room(k);st.filter=k;st.sel=null;cs.gx=r.cx;cs.gz=r.cz;cs.gzoom=r.k==='pool'?1.6:r.k==='garden'?1.1:2.0;if(!r.outdoor&&!roofOpen)setRoof(true)}
 function select(id,fly){
   if(id==='__tv'){openTV();return}
@@ -264,7 +264,7 @@ canvas.addEventListener('pointermove',function(e){
   var dx=e.clientX-prev.x,dy=e.clientY-prev.y;drag.moved+=Math.abs(dx)+Math.abs(dy);
   var s=(cam.top-cam.bottom)/window.innerHeight,a=cs.az*PI/180;
   cs.gx-=Math.cos(a)*dx*s;cs.gz+=Math.sin(a)*dx*s;cs.gx+=-Math.sin(a)*dy*s/Math.sin(EL);cs.gz+=-Math.cos(a)*dy*s/Math.sin(EL);
-  cs.gx=clamp(cs.gx,-40,50);cs.gz=clamp(cs.gz,-26,42)});
+  cs.gx=clamp(cs.gx,-46,56);cs.gz=clamp(cs.gz,-32,42)});
 var rc=new T.Raycaster(),v2=new T.Vector2();
 function pickAt(px,py){v2.set(px/window.innerWidth*2-1,-(py/window.innerHeight)*2+1);rc.setFromCamera(v2,cam);
   var hits=rc.intersectObjects(pickables,true);for(var i=0;i<hits.length;i++){var o=hits[i].object;while(o){if(o.userData&&o.userData.sel)return o.userData.sel;o=o.parent}}return null}

@@ -33,6 +33,12 @@ var ROOMS=[
 if(SP){var SPN={work:['ฮังการ์ยาน','Hangar · งานโรงงาน'],apps:['ห้องคอมพิวเตอร์','Computer bay · แอปและเครื่องมือ'],growth:['ห้องพักลูกเรือ','Crew quarters · พัฒนาตัวเอง'],income:['ครัว · โรงอาหาร','Galley · รายได้เสริม'],life:['เลานจ์','Lounge · งานอดิเรก'],garden:['สวนไฮโดรโปนิกส์','Hydroponic deck'],gym:['ห้องออกกำลังกาย','Gym · ตารางประจำสัปดาห์'],bath:['ห้องน้ำ · สมาธิ','Hygiene · Meditation'],pool:['สปา · สระ','Spa pool · ตารางประจำสัปดาห์']};
   ROOMS.forEach(function(r){var a=SPN[r.k];if(a){r.n=a[0];r.en=a[1]}})}
 var room=function(k){return ROOMS.filter(function(r){return r.k===k})[0]||ROOMS[0]};
+if(SP){ /* space layout tweaks: compact hydroponic annex, rover inside the hangar, twin beds */
+  var gA=room('garden');gA.x0=0;gA.x1=22;gA.z0=13;gA.z1=31;gA.cx=11;gA.cz=22;
+  gA.slots=[[3.4,18.4,0],[13.6,18.4,0],[19.0,18.6,0],[3.4,26.2,0],[13.6,26.2,0],[19.0,26.0,0]];
+  room('work').slots=[[-19.3,2.6,0],[-12.3,2.6,0],[-11.6,6.9,-PI/2],[-12.3,11.0,0],[-16.0,11.0,0],[-19.4,11.0,0]];
+  room('growth').slots=[[1.9,-2.8,0],[9.2,-2.8,0],[1.4,-5.5,PI/2],[9.8,-5.6,-PI/2],[5.5,-11.9,0],[5.5,-8.2,PI]];
+}
 var PROJROOMS=ROOMS.filter(function(r){return !r.routine});
 var ROUTROOMS=ROOMS.filter(function(r){return r.routine});
 var STATUS={active:{n:'กำลังทำ',cls:'good'},planning:{n:'วางแผน',cls:'blue'},paused:{n:'พักไว้',cls:'idle'},done:{n:'เสร็จแล้ว',cls:'warn'}};
@@ -241,17 +247,6 @@ var extWalls={};
 var houseStatic=new T.Group();scene.add(houseStatic);
 
 function rooms_floor(){
-  if(SP){ /* station decks: metal plates, panel seams, accent floor per room */
-    var fs={work:0x59657c,apps:0x3b4a6b,growth:0x5a5470,income:0x8f9db3,life:0x34476e,gym:0x4a5568,bath:0x9fb4c4};
-    Object.keys(fs).forEach(function(k){var r=room(k);box(r.x1-r.x0,.08,r.z1-r.z0,fs[k],r.cx,.54,r.cz,houseStatic,true);
-      /* panel seams */
-      for(var sx=r.x0+3;sx<r.x1-.5;sx+=3)box(.07,.02,r.z1-r.z0,0x242d42,sx,.6,r.cz,houseStatic,true);
-      for(var sz=r.z0+3;sz<r.z1-.5;sz+=3)box(r.x1-r.x0,.02,.07,0x242d42,r.cx,.6,sz,houseStatic,true)});
-    /* hangar hazard stripes + glowing floor guide lines */
-    for(var h2=0;h2<7;h2++)box(1.1,.015,.5,h2%2?0x1a1f2c:0xe7c24a,-22+.9+h2*1.3,.61,12.4,houseStatic,true);
-    box(.12,.03,13,GLOW(CYAN,.55),0,.62,0,houseStatic,true);
-    return;
-  }
   var fl={work:0xb9bdc4,apps:0xc99b69,growth:0xe8d6c2,income:0xefe2cc,life:0xd9ab76,gym:0x8d9aa8,bath:0xcfe3e6};
   Object.keys(fl).forEach(function(k){var r=room(k);box(r.x1-r.x0,.08,r.z1-r.z0,fl[k],r.cx,.54,r.cz,houseStatic,true)});
   /* wood plank stripes */
@@ -318,12 +313,6 @@ function buildShell(){
   box(.4,.25,6.4,TRIM,22,0.12,6.5,r,true);box(.4,.3,6.4,TRIM,22,4.9,6.5,r,true);box(.4,4.8,.2,TRIM,22,2.4,6.5,r,true);
   [[l,-21.7],[r,22.3]].forEach(function(a){var sh=new T.Shape();sh.moveTo(-12.7,0);sh.lineTo(12.7,0);sh.lineTo(12.7,.15);sh.lineTo(-12.7,2.1);sh.lineTo(-12.7,0);
     var geo=new T.ExtrudeGeometry(sh,{depth:.6,bevelEnabled:false}),m=new T.Mesh(geo,M(WALLC));m.rotation.y=-PI/2;m.position.set(a[1],Hh,0);m.castShadow=true;m.receiveShadow=true;a[0].add(m)});
-  if(SP){ /* glowing seams on the hull interior faces */
-    box(44,.12,.1,GLOW(CYAN,.8),0,1.0,-12.66,b,true);box(44,.1,.1,GLOW(0xffb347,.55),0,5.5,-12.66,b,true);
-    box(.1,.12,24.4,GLOW(CYAN,.8),-21.66,1.0,0,l,true);box(.1,.1,24.4,GLOW(0xffb347,.55),-21.66,5.2,0,l,true);
-    for(var pb=-20;pb<=20;pb+=5)box(.14,6.6,.12,0x9aa9bf,pb,3.4,-12.62,b,true);
-    for(var pl=-10;pl<=10;pl+=5)box(.12,6.0,.14,0x9aa9bf,-21.62,3.1,pl,l,true);
-  }
   Object.keys(extWalls).forEach(function(k){var g=extWalls[k];mergeStatic(g);g.position.y=.5});
 }
 /* interior partitions */
@@ -352,7 +341,7 @@ function buildRoof(){
   box(1.1,1.4,1.1,RM(SP?0xdbe3ee:0xe9c9a0),-19,1.4,-8,roof,true);
   roof.position.set(0,.5+EXTH+1.55,0);scene.add(roof);
 }
-rooms_floor();buildShell();buildPartitions();buildRoof();
+if(!SP){rooms_floor();buildShell();buildPartitions();buildRoof()} /* SP: built by spBuildStation() in b2s_space.js */
 
 /* glow decals (warm light pools at night) */
 (function(){
