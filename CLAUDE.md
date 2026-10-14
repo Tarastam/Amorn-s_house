@@ -14,6 +14,7 @@ lifehouse2/
     a_head.html             # CSS + โครง HTML
     b1_core.js              # ข้อมูล ห้อง เวลา ตัวบ้าน
     b2_props.js             # ของตกแต่งและ props
+    b2s_space.js            # ธีม Space Station: props, ของตกแต่ง, ลานสถานี (ทำงานเมื่อ SP)
     b3_world.js             # ตัวละคร เส้นทางเดิน
     b4_ui.js                # UI ทีวี กล้อง วนลูป __lh hook
   site/index.html           # เวอร์ชันไฟล์เว็บเดี่ยวสำหรับโฮสต์เอง          [สร้างจาก parts]
@@ -31,7 +32,7 @@ lifehouse2/
 ## วิธีทำงาน
 
 1. แก้ไฟล์ใน `parts/` เท่านั้น ห้ามแก้ `index.html`, `site/index.html`, `artifacts/*` ตรงๆ
-2. รัน `./build.sh`
+2. รัน `./build.sh` (หรือ `sh build.sh`)
 3. ทดสอบ: `cd tests && npm install && node run.js desk steps_kitchen_office.json` (ได้ `desk []` แปลว่าไม่มี error) แล้วดูภาพใน `tests/shots/`
 4. เผยแพร่ซ้ำ: publish ไฟล์ `/home/claude/lifehouse2/index.html` path เดิมเพื่อคง URL เดิม (ไม่ส่ง `icon`)
 5. สำหรับโฮสต์เอง (Netlify / GitHub Pages ฯลฯ) ใช้ `site/index.html`
@@ -41,6 +42,13 @@ Artifact ที่เผยแพร่: https://claude.ai/artifact/7pou1tY6merX
 ---
 
 วันที่สรุป: 14 ตุลาคม 2026
+
+## สถานะล่าสุด (14 ต.ค. 2026 บ่าย)
+
+- ทิศทางที่ตกลง: ทำครบ 4 ธีมแบบ 3D ให้คล้ายภาพใน `docs/reference/` (ไม่ต้องเหมือน) เริ่มที่ Space Station; ตัวละครคงเดิม (Amorn + Border Collie); ดูแผนทุกเฟสที่ `docs/ROADMAP.md`
+- **ธีม Space Station รอบแรกเสร็จ (เป็นธีมเริ่มต้น)**: ใช้ผังห้องเดิม 9 พื้นที่ แต่เปลี่ยนเปลือก พื้น แสง ของตกแต่ง ฉากอวกาศ (โลก ดวงจันทร์ ดาว) ตัวละครใส่ชุดนักบิน; ปุ่มมุมขวาบนสลับกลับเป็นบ้านเดิมได้ (`?theme=home`)
+- ยังไม่ทำ: ผังโมดูลหลายห้องแบบในภาพต้นแบบ, ระบบ coin/XP/level, to-do/calendar/habits, มินิเกม, ธีมอีก 3 ธีม
+- รายละเอียดเทคนิคเรื่องธีมอยู่ในหัวข้อ "Themes" ของ `docs/TECHNICAL.md`
 
 ## เป้าหมาย
 

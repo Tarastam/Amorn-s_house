@@ -8,6 +8,15 @@ var reduced=false;try{reduced=matchMedia('(prefers-reduced-motion: reduce)').mat
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 var DAYS=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
 
+/* ================= theme (space = default, home = legacy warm house) ================= */
+var THEME=(function(){
+  var t='space';
+  try{var q=location.search.match(/[?&]theme=(\w+)/);if(q)t=q[1];else{var s=localStorage.getItem('lifehouse.theme');if(s)t=s}}catch(e){}
+  return t==='home'?'home':'space';
+})();
+var SP=THEME==='space';
+try{$('#app').classList.toggle('theme-space',SP)}catch(e){}
+
 /* ================= rooms ================= */
 function R(o){o.cx=(o.x0+o.x1)/2;o.cz=(o.z0+o.z1)/2;o.c=parseInt(o.css.slice(1),16);return o}
 var ROOMS=[
@@ -21,6 +30,8 @@ var ROOMS=[
  R({k:'bath',n:'ห้องน้ำ · สมาธิ',en:'Bathroom · Meditation',css:'#2aa3c4',x0:11,x1:22,z0:-13,z1:0,node:'bath',routine:true,hub:[13.4,-3.4,0]}),
  R({k:'pool',n:'สระว่ายน้ำ',en:'Pool · ตารางประจำสัปดาห์',css:'#2b8fe0',x0:22,x1:44,z0:-6,z1:14,node:'pool',routine:true,outdoor:true,hub:[34.2,10.8,0]})
 ];
+if(SP){var SPN={work:['ฮังการ์ยาน','Hangar · งานโรงงาน'],apps:['ห้องคอมพิวเตอร์','Computer bay · แอปและเครื่องมือ'],growth:['ห้องพักลูกเรือ','Crew quarters · พัฒนาตัวเอง'],income:['ครัว · โรงอาหาร','Galley · รายได้เสริม'],life:['เลานจ์','Lounge · งานอดิเรก'],garden:['สวนไฮโดรโปนิกส์','Hydroponic deck'],gym:['ห้องออกกำลังกาย','Gym · ตารางประจำสัปดาห์'],bath:['ห้องน้ำ · สมาธิ','Hygiene · Meditation'],pool:['สปา · สระ','Spa pool · ตารางประจำสัปดาห์']};
+  ROOMS.forEach(function(r){var a=SPN[r.k];if(a){r.n=a[0];r.en=a[1]}})}
 var room=function(k){return ROOMS.filter(function(r){return r.k===k})[0]||ROOMS[0]};
 var PROJROOMS=ROOMS.filter(function(r){return !r.routine});
 var ROUTROOMS=ROOMS.filter(function(r){return r.routine});
@@ -137,7 +148,17 @@ function mergeStatic(root){
 
 /* ================= time of day ================= */
 function C(s){return new T.Color(s)}
-var KF=[
+/* keyframe: [hour, skyTop, skyBottom, sunColour, sunIntensity, hemiSky, hemiGround, hemiIntensity, nightFactor] */
+var KFSPACE=[
+ [0,'#02040c','#0a1430','#9fb6ff',.34,'#5a6b9a','#151c33',.5,1],
+ [5.5,'#02040c','#0a1430','#9fb6ff',.34,'#5a6b9a','#151c33',.5,1],
+ [7,'#02040c','#0b1836','#e6f0ff',.78,'#9db6e0','#2a3550',.8,.35],
+ [12,'#02040c','#0b1836','#f2f7ff',.88,'#b4c8ee','#2f3b58',.88,.3],
+ [21.5,'#02040c','#0b1836','#e6f0ff',.78,'#9db6e0','#2a3550',.8,.35],
+ [23,'#02040c','#0a1430','#9fb6ff',.34,'#5a6b9a','#151c33',.5,1],
+ [24,'#02040c','#0a1430','#9fb6ff',.34,'#5a6b9a','#151c33',.5,1]
+];
+var KFHOME=[
  [0,'#0a1230','#1d2c56','#8da2f0',.26,'#5a6bb0','#1c2244',.5,1],
  [5,'#0a1230','#1d2c56','#8da2f0',.26,'#5a6bb0','#1c2244',.5,1],
  [6.3,'#6f80b8','#f6b48c','#ffc08a',.5,'#d8c4cc','#6d6272',.66,.45],
@@ -148,7 +169,8 @@ var KF=[
  [19.2,'#363c72','#df7480','#ff8a70',.34,'#8480b0','#3c3652',.54,.75],
  [20.6,'#0e1636','#26335f','#8da2f0',.26,'#5a6bb0','#1c2244',.5,1],
  [24,'#0a1230','#1d2c56','#8da2f0',.26,'#5a6bb0','#1c2244',.5,1]
-].map(function(a){return {h:a[0],top:C(a[1]),bot:C(a[2]),sun:C(a[3]),si:a[4],hs:C(a[5]),hg:C(a[6]),hi:a[7],nf:a[8]}});
+];
+var KF=(SP?KFSPACE:KFHOME).map(function(a){return {h:a[0],top:C(a[1]),bot:C(a[2]),sun:C(a[3]),si:a[4],hs:C(a[5]),hg:C(a[6]),hi:a[7],nf:a[8]}});
 var tOver=null;
 function curH(){if(tOver!==null)return tOver;var d=new Date();return d.getHours()+d.getMinutes()/60+d.getSeconds()/3600}
 var TM={nf:0,h:12};
@@ -165,6 +187,7 @@ function applyTime(){
   var nf=lerp(a.nf,b.nf,t);TM.nf=nf;TM.h=h;
   hemi.color.copy(a.hs).lerp(b.hs,t);hemi.groundColor.copy(a.hg).lerp(b.hg,t);hemi.intensity=lerp(a.hi,b.hi,t);
   sun.color.copy(a.sun).lerp(b.sun,t);sun.intensity=lerp(a.si,b.si,t);
+  if(SP){sun.userData.dir=[34,70,28];$('#stars').style.opacity=1}else{
   /* sun / moon position */
   var dayT=(h-6)/12,isDay=dayT>=0&&dayT<=1,ang=isDay?dayT*PI:((h>=18?h-18:h+6)/12)*PI;
   var sx=Math.cos(ang)*60,sy=Math.max(14,Math.sin(ang)*80);
@@ -176,9 +199,11 @@ function applyTime(){
   orb.style.width=orb.style.height=(isDay?54:40)+'px';
   $('#stars').style.opacity=clamp((nf-.3)/.7,0,1);
   document.querySelectorAll('.cloud').forEach(function(c){c.style.opacity=lerp(.85,.18,nf)});
+  }
   /* windows / lamps */
-  tmpA.copy(a.bot).lerp(b.bot,t).lerp(warm,clamp(nf*1.2,0,1));
-  winMat.color.copy(tmpA);winMat.emissive.copy(tmpA);winMat.emissiveIntensity=.4+.55*nf;
+  if(SP){winMat.color.set(0x0b1f4a);winMat.emissive.set(0x1d78d8);winMat.emissiveIntensity=.5+.3*nf}
+  else{tmpA.copy(a.bot).lerp(b.bot,t).lerp(warm,clamp(nf*1.2,0,1));
+  winMat.color.copy(tmpA);winMat.emissive.copy(tmpA);winMat.emissiveIntensity=.4+.55*nf}
   lampMat.emissiveIntensity=.12+.95*nf;lanternMat.emissiveIntensity=.1+1.1*nf;
   glowDecals.forEach(function(g){g.material.opacity=nf*.6});
   /* clock + labels in HTML */
@@ -193,7 +218,7 @@ function applyTime(){
 /* ================= lot (floating diorama) ================= */
 var LOT={x0:-36,x1:46,z0:-24,z1:40};
 var lotG=new T.Group();scene.add(lotG);
-(function(){
+if(!SP)(function(){
   var w=LOT.x1-LOT.x0,d=LOT.z1-LOT.z0,cx=(LOT.x0+LOT.x1)/2,cz=(LOT.z0+LOT.z1)/2;
   box(w,.7,d,0x78bb68,cx,-.35,cz,lotG);
   box(w-.3,3.2,d-.3,0x8a6446,cx,-2.3,cz,lotG);
@@ -210,11 +235,23 @@ var lotG=new T.Group();scene.add(lotG);
 })();
 
 /* ================= house ================= */
-var WALLC=0xf6ead8,WALLD=0xe3d3bb,TRIM=0xfff7ea,EXTH=6.3,BH=8.4,INH=1.7,FLOORY=.55;
+var WALLC=SP?0xdbe3ee:0xf6ead8,WALLD=SP?0xb4c0d0:0xe3d3bb,TRIM=SP?0x8795ad:0xfff7ea,EXTH=6.3,BH=8.4,INH=1.7,FLOORY=.55;
+var CYAN=0x36d6ff,CAPC=SP?GLOW(CYAN,.6):0xb98a5c;
 var extWalls={};
 var houseStatic=new T.Group();scene.add(houseStatic);
 
 function rooms_floor(){
+  if(SP){ /* station decks: metal plates, panel seams, accent floor per room */
+    var fs={work:0x59657c,apps:0x3b4a6b,growth:0x5a5470,income:0x8f9db3,life:0x34476e,gym:0x4a5568,bath:0x9fb4c4};
+    Object.keys(fs).forEach(function(k){var r=room(k);box(r.x1-r.x0,.08,r.z1-r.z0,fs[k],r.cx,.54,r.cz,houseStatic,true);
+      /* panel seams */
+      for(var sx=r.x0+3;sx<r.x1-.5;sx+=3)box(.07,.02,r.z1-r.z0,0x242d42,sx,.6,r.cz,houseStatic,true);
+      for(var sz=r.z0+3;sz<r.z1-.5;sz+=3)box(r.x1-r.x0,.02,.07,0x242d42,r.cx,.6,sz,houseStatic,true)});
+    /* hangar hazard stripes + glowing floor guide lines */
+    for(var h2=0;h2<7;h2++)box(1.1,.015,.5,h2%2?0x1a1f2c:0xe7c24a,-22+.9+h2*1.3,.61,12.4,houseStatic,true);
+    box(.12,.03,13,GLOW(CYAN,.55),0,.62,0,houseStatic,true);
+    return;
+  }
   var fl={work:0xb9bdc4,apps:0xc99b69,growth:0xe8d6c2,income:0xefe2cc,life:0xd9ab76,gym:0x8d9aa8,bath:0xcfe3e6};
   Object.keys(fl).forEach(function(k){var r=room(k);box(r.x1-r.x0,.08,r.z1-r.z0,fl[k],r.cx,.54,r.cz,houseStatic,true)});
   /* wood plank stripes */
@@ -265,13 +302,13 @@ function buildShell(){
   box(44.8,.3,.9,TRIM,0,Hh+.05,13,f);
   addWin(f,'x',13,-5,3.4,6.4,3.4,1);addWin(f,'x',13,14.6,3.4,8.4,3.8,1);addWin(f,'x',13,2.6,3.4,3.2,3.4,1);
   /* garage door panel */
-  var gd=new T.Group();box(7.2,5.0,.3,0xe9e3d6,0,0,0,gd);for(var i=0;i<5;i++)box(7.0,.08,.34,0xcfc6b3,0,-2.0+i*1.0,0,gd,true);box(7.6,.3,.5,TRIM,0,2.6,0,gd,true);gd.position.set(-16,2.5,13);f.add(gd);
+  var gd=new T.Group();box(7.2,5.0,.3,SP?0xaab6c8:0xe9e3d6,0,0,0,gd);for(var i=0;i<5;i++)box(7.0,.08,.34,SP?0x6f7e98:0xcfc6b3,0,-2.0+i*1.0,0,gd,true);if(SP){box(6.4,.14,.36,GLOW(0xffb347,.9),0,-2.1,.02,gd,true);box(6.4,.14,.36,GLOW(0xffb347,.9),0,2.0,.02,gd,true)}box(7.6,.3,.5,TRIM,0,2.6,0,gd,true);gd.position.set(-16,2.5,13);f.add(gd);
   /* front door */
   var fd=new T.Group();box(2.8,.3,.7,TRIM,0,3.45,0,fd,true);box(.3,3.5,.7,TRIM,-1.35,1.7,0,fd,true);box(.3,3.5,.7,TRIM,1.35,1.7,0,fd,true);
-  var leaf=box(2.3,3.2,.2,0xb9703f,0,1.6,0,fd);box(.9,1.5,.25,winMat,-.4,2.2,.02,fd,true);box(.15,.5,.3,0xf0cf80,.8,1.6,.14,fd,true);fd.position.set(8.2,0,13);f.add(fd);
+  var leaf=box(2.3,3.2,.2,SP?0x7d8ba3:0xb9703f,0,1.6,0,fd);box(.9,1.5,.25,winMat,-.4,2.2,.02,fd,true);box(.15,.5,.3,SP?CYAN:0xf0cf80,.8,1.6,.14,fd,true);fd.position.set(8.2,0,13);f.add(fd);
   /* wood cladding strip beside front door */
-  for(var k=0;k<9;k++)box(.32,5.4,.2,k%2?0xc98f5a:0xb97f4c,10.6+k*.45,2.7,13.3,f,true);
-  for(var k2=0;k2<6;k2++)box(.32,5.4,.2,k2%2?0xc98f5a:0xb97f4c,3.9-k2*.45,2.7,13.3,f,true);
+  for(var k=0;k<9;k++)box(.32,5.4,.2,SP?(k%2?0xc3cfde:0x9aa9bf):(k%2?0xc98f5a:0xb97f4c),10.6+k*.45,2.7,13.3,f,true);
+  for(var k2=0;k2<6;k2++)box(.32,5.4,.2,SP?(k2%2?0xc3cfde:0x9aa9bf):(k2%2?0xc98f5a:0xb97f4c),3.9-k2*.45,2.7,13.3,f,true);
   /* right wall (x=22) with sliding door gap */
   var r=extWall('right',1,0);run(r,'z',22,-12.7,12.7,[[3.4,9.6,4.9]],Hh,T6,WALLC);
   box(.9,.3,25.4,TRIM,22,Hh+.05,0,r);
@@ -281,6 +318,12 @@ function buildShell(){
   box(.4,.25,6.4,TRIM,22,0.12,6.5,r,true);box(.4,.3,6.4,TRIM,22,4.9,6.5,r,true);box(.4,4.8,.2,TRIM,22,2.4,6.5,r,true);
   [[l,-21.7],[r,22.3]].forEach(function(a){var sh=new T.Shape();sh.moveTo(-12.7,0);sh.lineTo(12.7,0);sh.lineTo(12.7,.15);sh.lineTo(-12.7,2.1);sh.lineTo(-12.7,0);
     var geo=new T.ExtrudeGeometry(sh,{depth:.6,bevelEnabled:false}),m=new T.Mesh(geo,M(WALLC));m.rotation.y=-PI/2;m.position.set(a[1],Hh,0);m.castShadow=true;m.receiveShadow=true;a[0].add(m)});
+  if(SP){ /* glowing seams on the hull interior faces */
+    box(44,.12,.1,GLOW(CYAN,.8),0,1.0,-12.66,b,true);box(44,.1,.1,GLOW(0xffb347,.55),0,5.5,-12.66,b,true);
+    box(.1,.12,24.4,GLOW(CYAN,.8),-21.66,1.0,0,l,true);box(.1,.1,24.4,GLOW(0xffb347,.55),-21.66,5.2,0,l,true);
+    for(var pb=-20;pb<=20;pb+=5)box(.14,6.6,.12,0x9aa9bf,pb,3.4,-12.62,b,true);
+    for(var pl=-10;pl<=10;pl+=5)box(.12,6.0,.14,0x9aa9bf,-21.62,3.1,pl,l,true);
+  }
   Object.keys(extWalls).forEach(function(k){var g=extWalls[k];mergeStatic(g);g.position.y=.5});
 }
 /* interior partitions */
@@ -288,7 +331,7 @@ function buildPartitions(){
   var g=houseStatic,t=.34;
   function seg(axis,fixed,a0,a1,gaps){var gg=new T.Group();run(gg,axis,fixed,a0,a1,gaps,INH,t,WALLC,INH);
     /* wooden cap */
-    var cur=a0;(gaps||[]).slice().sort(function(p,q){return p[0]-q[0]}).concat([[a1,a1]]).forEach(function(gp){if(gp[0]>cur){var L=gp[0]-cur,c=(cur+gp[0])/2;if(axis==='x')box(L,.12,t+.12,0xb98a5c,c,INH+.06,fixed,gg,true);else box(t+.12,.12,L,0xb98a5c,fixed,INH+.06,c,gg,true)}cur=gp[1]});
+    var cur=a0;(gaps||[]).slice().sort(function(p,q){return p[0]-q[0]}).concat([[a1,a1]]).forEach(function(gp){if(gp[0]>cur){var L=gp[0]-cur,c=(cur+gp[0])/2;if(axis==='x')box(L,.12,t+.12,CAPC,c,INH+.06,fixed,gg,true);else box(t+.12,.12,L,CAPC,fixed,INH+.06,c,gg,true)}cur=gp[1]});
     gg.position.y=.55;g.add(gg)}
   seg('z',-10,-13,0,[[-8,-5]]);seg('z',-10,0,13,[[5,8]]);
   seg('z',0,-13,0,[[-8,-5]]);seg('z',0,0,13,[[3,9]]);
@@ -299,14 +342,14 @@ function buildPartitions(){
 var roof=new T.Group(),roofMats=[],roofT=0,roofOpen=false;
 function RM(c){var m=new T.MeshLambertMaterial({color:c,transparent:true,opacity:1});roofMats.push(m);return m}
 function buildRoof(){
-  var slab=box(49,.8,32.4,RM(0x4b4f62),0,0,0,roof);slab.rotation.x=.075;
-  var f=box(49.4,.55,.6,RM(0xe9c9a0),0,-.1,16.3,roof,true);f.rotation.x=.075;f.position.y=-1.15;f.position.z=16.1;
-  var fb=box(49.4,1.0,.6,RM(0xe9c9a0),0,.55,-16.1,roof,true);fb.position.y=1.15;fb.position.z=-16.1;
+  var slab=box(49,.8,32.4,RM(SP?0x7d889c:0x4b4f62),0,0,0,roof);slab.rotation.x=.075;
+  var f=box(49.4,.55,.6,RM(SP?0xdbe3ee:0xe9c9a0),0,-.1,16.3,roof,true);f.rotation.x=.075;f.position.y=-1.15;f.position.z=16.1;
+  var fb=box(49.4,1.0,.6,RM(SP?0xdbe3ee:0xe9c9a0),0,.55,-16.1,roof,true);fb.position.y=1.15;fb.position.z=-16.1;
   /* solar panels */
-  for(var i=0;i<6;i++)for(var j=0;j<2;j++){var p=box(5.6,.14,3.4,RM(0x2d4a7a),-16.5+i*6.6,0,-10+j*4.2,roof,true);p.rotation.x=.075;p.position.y=.5-(-10+j*4.2)*.075+.0;p.position.y=.46+(-(-10+j*4.2))*.075}
+  for(var i=0;i<6;i++)for(var j=0;j<2;j++){var p=box(5.6,.14,3.4,RM(SP?0x1a3a78:0x2d4a7a),-16.5+i*6.6,0,-10+j*4.2,roof,true);p.rotation.x=.075;p.position.y=.5-(-10+j*4.2)*.075+.0;p.position.y=.46+(-(-10+j*4.2))*.075}
   /* skylight strip */
   var sk=box(10,.12,3,winMat,3,0,6,roof,true);sk.rotation.x=.075;sk.position.y=.46-6*.075;
-  box(1.1,1.4,1.1,RM(0xe9c9a0),-19,1.4,-8,roof,true);
+  box(1.1,1.4,1.1,RM(SP?0xdbe3ee:0xe9c9a0),-19,1.4,-8,roof,true);
   roof.position.set(0,.5+EXTH+1.55,0);scene.add(roof);
 }
 rooms_floor();buildShell();buildPartitions();buildRoof();
@@ -314,7 +357,7 @@ rooms_floor();buildShell();buildPartitions();buildRoof();
 /* glow decals (warm light pools at night) */
 (function(){
   var c=document.createElement('canvas');c.width=c.height=128;var x=c.getContext('2d'),g=x.createRadialGradient(64,64,4,64,64,64);
-  g.addColorStop(0,'rgba(255,214,140,.95)');g.addColorStop(.55,'rgba(255,190,110,.4)');g.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=g;x.fillRect(0,0,128,128);
+  if(SP){g.addColorStop(0,'rgba(120,210,255,.85)');g.addColorStop(.55,'rgba(70,160,255,.3)');g.addColorStop(1,'rgba(40,120,255,0)')}else{g.addColorStop(0,'rgba(255,214,140,.95)');g.addColorStop(.55,'rgba(255,190,110,.4)');g.addColorStop(1,'rgba(255,170,90,0)')}x.fillStyle=g;x.fillRect(0,0,128,128);
   var tex=new T.CanvasTexture(c);
   ['work','apps','growth','income','life','gym','bath'].forEach(function(k){var r=room(k);
     var m=new T.Mesh(new T.PlaneGeometry((r.x1-r.x0)*1.1,(r.z1-r.z0)*1.1),new T.MeshBasicMaterial({map:tex,transparent:true,opacity:0,blending:T.AdditiveBlending,depthWrite:false}));

@@ -114,9 +114,9 @@ function buildLivingDecor(){
 }
 var tvPick=null,trophyPick=new T.Group();
 function buildTrophyShelf(){
-  var sh=new T.Group(),W=3.7,Dp=.8;
-  box(.12,4.0,Dp,DWOOD,-W/2,2.0,0,sh);box(.12,4.0,Dp,DWOOD,W/2,2.0,0,sh);box(W+.12,.14,Dp,DWOOD,0,.15,0,sh);box(W+.3,.16,Dp+.1,DWOOD,0,4.02,0,sh);box(W,3.9,.08,0xc89a64,0,2.0,-Dp/2+.04,sh,true);
-  [1.3,2.4,3.5].forEach(function(y){box(W,.1,Dp-.1,DWOOD,0,y,0,sh,true)});
+  var sh=new T.Group(),W=3.7,Dp=.8,FR=SP?0x2c3650:DWOOD,BKC=SP?0x161c2e:0xc89a64;
+  box(.12,4.0,Dp,FR,-W/2,2.0,0,sh);box(.12,4.0,Dp,FR,W/2,2.0,0,sh);box(W+.12,.14,Dp,FR,0,.15,0,sh);box(W+.3,.16,Dp+.1,FR,0,4.02,0,sh);box(W,3.9,.08,BKC,0,2.0,-Dp/2+.04,sh,true);
+  [1.3,2.4,3.5].forEach(function(y){box(W,.1,Dp-.1,FR,0,y,0,sh,true);if(SP)box(W-.2,.05,.06,GLOW(CYAN,.8),0,y-.02,Dp/2-.08,sh,true)});
   sh.position.set(.6,.55,11.0);sh.rotation.y=PI/2;scene.add(sh);
   mergeStatic(sh);
   var hit=new T.Mesh(G(1.8,4.4,W+.6),new T.MeshBasicMaterial({visible:false}));hit.position.set(0,2.2,0);hit.rotation.y=PI/2;hit.userData.keep=true;sh.add(hit);
@@ -223,4 +223,4 @@ function buildOtherDecor(){
   box(2.2,1.4,1.2,0xdcd7cc,26,.7,-14.6,g);
   mergeStatic(g);
 }
-buildLivingDecor();buildTrophyShelf();buildOtherDecor();
+if(!SP){buildLivingDecor();buildTrophyShelf();buildOtherDecor();}

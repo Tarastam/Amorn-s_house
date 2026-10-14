@@ -54,7 +54,7 @@ ROOMS.forEach(function(r){var el=document.createElement('div');el.className='lab
   el.addEventListener('pointerdown',function(e){e.stopPropagation();flyRoom(r.k)});r.el=el});
 
 /* ================= characters ================= */
-var SKIN=0xf0c19a,HAIR=0x2b211d,SHIRT=0x3f9e8d,PANTS=0x35405e,SHOE=0x3a2c26;
+var SKIN=0xf0c19a,HAIR=0x2b211d,SHIRT=SP?0xb4c0d4:0x3f9e8d,PANTS=SP?0x44506a:0x35405e,SHOE=SP?0x1f2638:0x3a2c26;
 function limb(w,l,c,x,y,z,p){var g=new T.Group();box(w,l,w*1.05,c,0,-l/2,0,g);g.position.set(x,y,z);p.add(g);return g}
 function makeAmorn(){
   var g=new T.Group(),body=new T.Group();g.add(body);
@@ -65,6 +65,7 @@ function makeAmorn(){
   box(.22,.2,.22,SKIN,0,2.15,0,body,true);
   var hd=new T.Group();hd.position.set(0,2.45,0);body.add(hd);ball(.36,SKIN,0,0,0,hd);box(.78,.2,.78,HAIR,0,.28,-.02,hd,true);box(.74,.34,.2,HAIR,0,.12,-.3,hd,true);
   box(.08,.1,.06,DARK,-.14,.02,.33,hd,true);box(.08,.1,.06,DARK,.14,.02,.33,hd,true);box(.2,.04,.04,0xb86e5c,0,-.14,.34,hd,true);
+  if(SP){box(.34,.3,.04,GLOW(0x36d6ff,.85),.24,1.75,.32,body,true);box(.98,.1,.62,0x36d6ff,0,2.0,0,body,true);box(.14,.7,.64,0xff7a3c,-.5,1.55,0,body,true);box(.14,.7,.64,0xff7a3c,.5,1.55,0,body,true)}
   g.scale.setScalar(1.1);
   var hit=new T.Mesh(G(1.6,3.2,1.6),new T.MeshBasicMaterial({visible:false}));hit.position.y=1.6;hit.userData.keep=true;g.add(hit);g.userData.sel='__amorn';
   g.rotation.order='YXZ';scene.add(g);
@@ -79,6 +80,7 @@ function makeDog(){
   box(.08,.5,.3,WH,.12,.1,0,hd,true);
   var tail=new T.Group();tail.position.set(-.78,.9,0);body.add(tail);box(.8,.2,.22,BK,-.38,0,0,tail,true).rotation.z=-.25;box(.3,.22,.24,WH,-.8,-.1,0,tail,true);
   var legs=[];[[.5,.24],[.5,-.24],[-.5,.24],[-.5,-.24]].forEach(function(p){var l=new T.Group();l.position.set(p[0],.55,p[1]);body.add(l);box(.18,.55,.18,BK,0,-.27,0,l);box(.2,.16,.2,WH,0,-.5,.0,l,true);legs.push(l)});
+  if(SP)box(.14,.1,.7,GLOW(0x36d6ff,.9),.82,.95,0,body,true);
   g.scale.setScalar(1.15);
   var hit=new T.Mesh(G(2.4,1.6,1.2),new T.MeshBasicMaterial({visible:false}));hit.position.y=.8;hit.userData.keep=true;g.add(hit);g.userData.sel='__dog';
   scene.add(g);

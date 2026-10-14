@@ -55,11 +55,22 @@ lifehouse2/
 
 ```bash
 cd /home/claude/lifehouse2
-cat parts/a_head.html parts/b1_core.js parts/b2_props.js parts/b3_world.js parts/b4_ui.js > index.html
+cat parts/a_head.html parts/b1_core.js parts/b2_props.js parts/b2s_space.js parts/b3_world.js parts/b4_ui.js > index.html
 mkdir -p site && { printf '<!doctype html>\n<html lang="th">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n'; cat index.html; printf '\n</html>\n'; } > site/index.html
 ```
 
 The parts are concatenated into one `<script>` IIFE scope (`b1` opens `(function(){'use strict'; ...`, `b4` closes it). So a name defined in one part is visible in the later ones. **Function names are global to that scope: avoid collisions** (a past bug: a picture-frame helper named `frame()` clashed with the render loop, so the helper is `pframe`).
+
+## Themes
+
+Two themes share one codebase, layout and logic: **space** (default, Space Station) and **home** (legacy warm house, to be removed when all four new themes exist). Selected by `?theme=space|home` or `localStorage['lifehouse.theme']`; the header button switches and reloads. In code: `THEME`, boolean `SP` (b1_core.js).
+
+- A theme only changes looks. Room rectangles, slots, doorways, walking nodes, data model and UI are identical, so Amorn, the dog, pathfinding, the TV dashboard and picking work unchanged.
+- b1_core.js: palette vars (`WALLC`, `TRIM`, `CAPC`), `KFSPACE`/`KFHOME` lighting keyframes, `SP` branches in `applyTime`, `rooms_floor`, `buildShell`, `buildRoof`, glow decals, room names (`SPN`).
+- b2s_space.js (only runs when `SP`): overrides `PROPS.*` with sci-fi versions, `spaceLiving()` (lounge + TV + clock), `spaceOther()` (all other rooms, spa, outer deck equipment, rover), `spaceLot()` (floating deck), CSS star field. Legacy builders are skipped via `if(!SP)` at the end of b2_props.js.
+- a_head.html: `.theme-space` CSS variables and overrides, CSS Earth (`#orb`) and moon (`#moon`).
+- Add a new theme by following the same pattern: palette in b1, a `bNs_<theme>.js` part with prop overrides and decor at the same coordinates, CSS block, and an entry in the theme switch.
+- Room labels are renamed per theme (`SPN`); the underlying room keys (`work`, `apps`, ...) stay the same because project data refers to them.
 
 ## Tech notes
 
@@ -108,8 +119,8 @@ Doorways in partitions are gaps; keep furniture out of them (for example office 
 Playwright-core with Chromium at `/opt/pw-browsers/chromium` and software GL (`--use-gl=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist`). The harness lives in `tests/` (`tests/run.js`; run `npm install` there once; usage: `node run.js desk|phone steps.json`, where steps are `{js, wait, shot}`). It serves the page from a stub URL and fulfils the Three.js request from `node_modules/three/build/three.min.js`; everything else is aborted (Google Fonts fail offline, so ignore `ERR_FAILED`).
 
 - Software GL runs at about 1.3 fps, so tests set `reducedMotion:'reduce'` and **teleport** the camera or agents instead of waiting for animation.
-- Test hook: `window.__lh` exposes `renderer, trophyG, scene, st, tv, S, setTime(h), openTV(tab), closeTV, setRoof(bool), select(id), cs (camera state), items, amorn, dog, roofT`.
-- Room close-ups: `document.querySelector('[data-f=income]').click()` (kitchen) or `[data-f=apps]` (office). Use `__lh.setTime(13)` for daylight and `__lh.setRoof(true)` to open the roof.
+- Test hook: `window.__lh` exposes `theme, renderer, trophyG, scene, st, tv, S, setTime(h), openTV(tab), closeTV, setRoof(bool), select(id), cs (camera state), items, amorn, dog, roofT`.
+- Theme for tests: default is space; `THEME=home node run.js desk steps.json` renders the legacy house. Space steps: `steps_space.json`. Room close-ups: `document.querySelector('[data-f=income]').click()` (kitchen) or `[data-f=apps]` (office). Use `__lh.setTime(13)` for daylight and `__lh.setRoof(true)` to open the roof.
 - Checklist before publishing: no `pageerror`/console errors on desktop (1440×860) and phone (400×820); TV tabs open; a quest toggle and a week toggle persist; the garage's 6-project limit refuses a 7th; screenshots of any room you changed.
 
 ## Working rules

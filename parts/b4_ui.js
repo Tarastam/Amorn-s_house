@@ -204,12 +204,20 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(tv.open)
 
 /* ================= top buttons ================= */
 function setRoof(open){
-  roofOpen=open;$('#bRoof').setAttribute('aria-pressed',open);$('#roofT').textContent=open?'ปิดหลังคา':'เปิดหลังคา';
+  roofOpen=open;$('#bRoof').setAttribute('aria-pressed',open);$('#roofT').textContent=SP?(open?'ปิดเปลือกสถานี':'เปิดเปลือกสถานี'):(open?'ปิดหลังคา':'เปิดหลังคา');
   if(!open){st.sel=null;refreshSel()}
-  showHint(open?'คลิกของในบ้านเพื่อดูโปรเจกต์ หรือคลิกทีวีเพื่อเปิดแดชบอร์ด':'คลิกบ้านหรือกด “เปิดหลังคา” เพื่อดูห้องข้างใน');
+  showHint(open?(SP?'คลิกของในสถานีเพื่อดูโปรเจกต์ หรือคลิกทีวีในเลานจ์เพื่อเปิดแดชบอร์ด':'คลิกของในบ้านเพื่อดูโปรเจกต์ หรือคลิกทีวีเพื่อเปิดแดชบอร์ด'):(SP?'คลิกสถานีหรือกด “เปิดเปลือกสถานี” เพื่อดูห้องข้างใน':'คลิกบ้านหรือกด “เปิดหลังคา” เพื่อดูห้องข้างใน'));
 }
 var hintT;function showHint(m){var h=$('#hint');h.textContent=m;h.classList.add('on');clearTimeout(hintT);hintT=setTimeout(function(){h.classList.remove('on')},4200)}
 $('#bRoof').onclick=function(){setRoof(!roofOpen)};
+/* theme switch (saved in localStorage; a ?theme= query overrides) */
+$('#themeT').textContent=SP?'Space Station':'Warm Home';
+$('#bTheme').onclick=function(){
+  var nt=SP?'home':'space';try{localStorage.setItem('lifehouse.theme',nt)}catch(e){}
+  try{var u=location.search.replace(/([?&])theme=\w+&?/,'$1').replace(/[?&]$/,'');if(u!==location.search){location.search=u;return}}catch(e){}
+  location.reload();
+};
+if(SP){var nm=document.querySelector('.logo .nm'),sm=document.querySelector('.logo small');if(nm)nm.textContent='Amorn Station';if(sm)sm.textContent='สถานีอวกาศของโปรเจกต์และเควส';document.title='Amorn Station'}
 $('#bTv').onclick=function(){openTV()};
 $('#bClock').onclick=function(){var tb=$('#timebar');tb.classList.toggle('on');if(tb.classList.contains('on')){$('#tbR').value=curH();$('#tbL').textContent=$('#clkT').textContent}};
 $('#tbR').addEventListener('input',function(e){tOver=+e.target.value;applyTime();$('#tbL').textContent=$('#clkT').textContent});
@@ -317,7 +325,7 @@ rebuild();refreshSel();
 if(reduced){roofT=1;setRoof(true)}else{setTimeout(function(){if(!roofOpen)setRoof(true)},1700)}
 sendAmorn(itemById(S.last)||items.filter(function(i){return i.kind==='p'&&i.p.status==='active'})[0]);
 amorn.x=amorn.cur?amorn.cur.x:amorn.x;amorn.z=amorn.cur?amorn.cur.z:amorn.z;amorn.path=[];arrive(amorn);
-window.__lh={renderer:renderer,trophyG:trophyG,scene:scene,st:st,tv:tv,get S(){return S},setTime:function(h){tOver=h;applyTime()},openTV:openTV,closeTV:closeTV,setRoof:setRoof,select:select,cs:cs,items:function(){return items},amorn:amorn,dog:dog,roofT:function(){return roofT}};
+window.__lh={theme:THEME,renderer:renderer,trophyG:trophyG,scene:scene,st:st,tv:tv,get S(){return S},setTime:function(h){tOver=h;applyTime()},openTV:openTV,closeTV:closeTV,setRoof:setRoof,select:select,cs:cs,items:function(){return items},amorn:amorn,dog:dog,roofT:function(){return roofT}};
 requestAnimationFrame(frame);
 })();
 </script>
