@@ -3,7 +3,7 @@ const fs=require('fs');
 const vp=process.argv[2]||'desk';
 const steps=JSON.parse(fs.readFileSync(process.argv[3],'utf8'));
 (async()=>{
-  const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium',args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
+  const b=await chromium.launch({executablePath:process.env.CHROME||'/opt/pw-browsers/chromium',args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
   const three=fs.readFileSync(require('path').join(__dirname,'node_modules/three/build/three.min.js'),'utf8');
   const html=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8');
   const [w,h]=vp==='phone'?[400,820]:[1440,860];
@@ -14,7 +14,7 @@ const steps=JSON.parse(fs.readFileSync(process.argv[3],'utf8'));
     if(u.includes('three.min.js'))return r.fulfill({body:three,contentType:'application/javascript'});
     if(u.split('?')[0]==='https://test.local/')return r.fulfill({body:'<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><body style="margin:0">'+html,contentType:'text/html'});
     return r.abort()});
-  await p.goto('https://test.local/'+(process.env.THEME?'?theme='+process.env.THEME:''));await p.waitForTimeout(6000);
+  await p.goto('https://test.local/');await p.waitForTimeout(6000);
   for(const s of steps){
     if(s.js){const r=await p.evaluate(s.js);if(r!==undefined)console.log('R',JSON.stringify(r))}
     await p.waitForTimeout(s.wait||4000);

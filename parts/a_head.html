@@ -1,4 +1,4 @@
-<title>Amorn's Home</title>
+<title>Amorn Station</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Manrope:wght@500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
@@ -243,6 +243,14 @@ button.tvc:hover{border-color:var(--c,var(--ta));background:#212638}
 .theme-space .zoom button:hover{background:var(--accent-soft)}
 .theme-space .timebar input,.theme-space .tv .tvMain input[type=range]{accent-color:var(--accent)}
 
+.thmenu{position:absolute;right:16px;top:70px;z-index:30;width:240px;padding:8px;display:none;flex-direction:column;gap:4px}
+.thmenu.on{display:flex}
+.thmenu .cap{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);padding:2px 6px 4px}
+.thi{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font:inherit}
+.thi b{font-size:13px}.thi small{font-size:11px;color:var(--muted)}
+.thi.on{background:var(--accent-soft);border-color:var(--accent)}
+.thi:disabled{opacity:.5;cursor:not-allowed}
+.thi:not(:disabled):hover{background:var(--accent-soft)}
 @media (max-width:900px){
   .legend{display:none}
   .top{left:8px;right:8px;top:8px;height:46px;padding:0 8px 0 10px;gap:6px}
@@ -251,6 +259,7 @@ button.tvc:hover{border-color:var(--c,var(--ta));background:#212638}
   .chips{top:62px;left:8px;right:8px;max-width:none}
   .zoom{right:8px;top:auto;bottom:auto;top:116px;transform:none}
   .timebar{right:8px;left:8px;width:auto;top:62px}
+  .thmenu{right:8px;top:62px}
   .card{bottom:10px}
   .hint{top:116px;white-space:normal;width:max-content;max-width:calc(100% - 100px)}
   .tv{padding:0}
@@ -269,28 +278,78 @@ button.tvc:hover{border-color:var(--c,var(--ta));background:#212638}
 }
 @media (max-width:560px){.days{grid-template-columns:1fr}.dy{flex-direction:row;align-items:center}.dy .dn{min-width:44px;flex-direction:column}.dy .tg{min-width:44px}.qCols{columns:1}}
 @media (prefers-reduced-motion:reduce){.bar i,.bBar i,.toast,.q .tx,.q .ck,.q .ck::after,.card,.bezel,.tv,.hint{transition:none}.cloud{animation:none}}
+
+/* Four worlds, one compact control bar. */
+body{margin:0}
+.theme-cafe{--accent:#99632e;--accent-soft:#f4e5ce;--panel:rgba(255,249,235,.95);--solid:#fffaf0;--ink:#44392d;--muted:#81745f;--line:#daceb6}
+.theme-arcade{--accent:#ff6fcb;--accent-soft:#40264b;--panel:rgba(23,24,48,.95);--solid:#252440;--ink:#f0e6fa;--muted:#b8a7ce;--line:#514366;color-scheme:dark}
+.theme-wizard{--accent:#cba55f;--accent-soft:#493a50;--panel:rgba(43,36,55,.95);--solid:#30273b;--ink:#f2e7d4;--muted:#bdabbd;--line:#64516c;color-scheme:dark}
+.theme-cafe .starfield,.theme-cafe .moon,.theme-arcade .orb,.theme-arcade .moon,.theme-wizard .orb,.theme-wizard .moon{display:none}
+.theme-arcade .cloud,.theme-wizard .cloud{display:none}
+.theme-cafe .orb{background:#fff4ce;box-shadow:0 0 120px 40px #ffe6a480}
+.theme-arcade .glass,.theme-wizard .glass{border-color:var(--line)}
+.theme-arcade .btn,.theme-wizard .btn,.theme-arcade .clock,.theme-wizard .clock{background:var(--solid);color:var(--ink);border-color:var(--line)}
+.theme-arcade .logo .nm,.theme-wizard .logo .nm{color:var(--ink)}
+.theme-arcade .chip,.theme-wizard .chip,.theme-arcade .zoom button,.theme-wizard .zoom button{color:var(--ink)}
+.theme-arcade .btn[aria-pressed=true],.theme-wizard .btn[aria-pressed=true]{background:var(--accent-soft);color:var(--ink)}
+.theme-arcade .card,.theme-wizard .card{color:var(--ink)}
+.theme-arcade .card .next,.theme-wizard .card .next{background:var(--solid);color:var(--ink)}
+.theme-arcade .btn.pri,.theme-wizard .btn.pri,.theme-arcade .chip[aria-pressed=true],.theme-wizard .chip[aria-pressed=true]{background:var(--accent);color:#221b32}
+.theme-arcade .bLab,.theme-wizard .bLab{background:var(--solid);color:var(--ink);border-color:var(--line)}
+.theme-arcade .legend span,.theme-wizard .legend span,.theme-arcade .hint,.theme-wizard .hint{color:var(--ink)}
+.thmenu{width:320px;max-width:calc(100vw - 16px);padding:12px;gap:7px}.thi{padding:12px}.thi b{font-size:14px}.thi small{line-height:1.6}
+.wardrobe[hidden]{display:none!important}
+.wardrobe{position:absolute;inset:0;z-index:110;display:flex;align-items:center;justify-content:center;padding:24px;background:#111322bb;backdrop-filter:blur(12px);touch-action:auto}
+.closet{width:900px;max-width:100%;max-height:100%;overflow:auto;background:#fbf7f0;color:#372f37;border:1px solid #fff9;border-radius:24px;box-shadow:0 30px 120px #0006;color-scheme:light}
+.closet-head{display:flex;justify-content:space-between;align-items:flex-start;padding:26px 30px 20px;border-bottom:1px solid #e8dfd2}
+.closet-eyebrow{font-family:var(--f-mono);font-size:10px;letter-spacing:.2em;color:#987e5e}
+.closet h2{font-size:26px;margin:6px 0}.closet p{margin:0;color:#8b7b76;font-size:12px}
+.closet-close{font-size:28px;width:40px;height:40px;background:#eee6da;border-radius:50%;color:#51434a}
+.closet-body{display:grid;grid-template-columns:1fr 1fr;min-height:410px}
+.look-stage{position:relative;display:flex;flex-direction:column;align-items:center;background:radial-gradient(ellipse at 50% 45%,#f4ead8,#dfd3c7);margin:18px;border-radius:18px;overflow:hidden}
+.look-tag{position:absolute;top:20px;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:#73635d;text-align:center}
+#lookCanvas{width:100%;height:340px;display:block;flex:none}
+.look-rotate{display:flex;align-items:center;gap:16px;color:#8d7b71;font-size:11px}.look-rotate button{background:#fff9;width:36px;height:36px;border:1px solid #cdbca9;border-radius:50%;font-size:23px;color:#625149}
+.look-note{font-size:10px;color:#8d7b71;padding:10px}
+.look-options{padding:20px 26px 24px 8px;min-width:0}
+.look-tabs{display:flex;background:#eee7dc;padding:4px;border-radius:10px}.look-tabs button{flex:1;border-radius:7px;padding:10px;color:#84766c;font-weight:700}.look-tabs [aria-selected=true]{background:#fffdfa;color:#453b36;box-shadow:0 2px 8px #72532e15}
+.look-label{font-size:10px;letter-spacing:.08em;color:#927b64;margin:20px 0 10px}
+.look-presets{display:grid;grid-template-columns:1fr 1fr;gap:7px}.look-presets button{display:flex;align-items:center;gap:7px;border:1px solid #e0d6c9;padding:10px 8px;border-radius:8px;font-size:11px;text-align:left;color:#63544b}.look-presets button:hover{background:#f0e6d8}.look-presets i{width:10px;height:10px;border-radius:50%;background:var(--look-accent);flex:none}
+.look-field{display:grid;grid-template-columns:85px 1fr;align-items:center;gap:10px;margin:10px 0;color:#716155;font-size:12px}
+.look-field select{background:#fffdf8;border:1px solid #dfd3c5;border-radius:8px;padding:9px;color:#453b36;min-width:0;width:100%}
+.look-colors{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.look-color{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px;border:1px solid #e0d6c9;border-radius:8px;font-size:11px;color:#716155}.look-color input{width:29px;height:29px;padding:0;border:none;background:none;cursor:pointer;flex:none}
+.closet-foot{display:flex;gap:9px;align-items:center;padding:16px 28px;border-top:1px solid #e8dfd2;position:sticky;bottom:0;background:#fbf7f0;z-index:2}.closet-foot>span{font-size:11px;color:#8b7b76;margin-right:auto}.closet-foot .btn{background:#fffdf8;color:#66574c;border-color:#e0d6c9}.closet-foot .btn.pri{background:#493c42;border-color:#493c42;color:#fff9ed}
+@media(max-width:600px){.wardrobe{padding:8px}.closet{border-radius:16px}.closet-head{padding:16px}.closet h2{font-size:22px}.closet-body{grid-template-columns:1fr}.look-stage{margin:12px 12px 0}#lookCanvas{height:240px}.look-tag{top:10px}.look-options{padding:16px}.look-label{margin-top:14px}.closet-foot{padding:12px;flex-wrap:wrap}.closet-foot>span{width:100%}.closet-foot .btn{flex:1}.look-note{display:none}.look-rotate{margin-bottom:8px}}
+
 </style>
 
 <div id="app">
   <div class="sky" id="sky"><div class="stars" id="stars"></div><div class="orb" id="orb"></div><div class="moon" id="moon"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div></div>
-  <canvas id="gl" role="img" aria-label="บ้านโมเดิร์นไอโซเมตริกที่เปิดหลังคาดูห้องต่างๆ ได้ ของในบ้านแต่ละชิ้นคือโปรเจกต์ ทีวีในห้องรับแขกคือแดชบอร์ด"></canvas>
+  <canvas id="gl" role="img" aria-label="สถานีอวกาศไอโซเมตริกที่เปิดเปลือกดูห้องต่างๆ ได้ ของในสถานีแต่ละชิ้นคือโปรเจกต์ ทีวีในห้องรับแขกคือแดชบอร์ด"></canvas>
   <div class="labels" id="labels"></div>
 
   <header class="top glass">
-    <div class="logo"><div class="mk"><svg class="i" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M10 20v-5h4v5"/></svg></div><div><span class="nm">Amorn's Home</span><small>บ้านของโปรเจกต์และเควส</small></div></div>
+    <div class="logo"><div class="mk"><svg class="i" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M10 20v-5h4v5"/></svg></div><div><span class="nm">Amorn Station</span><small>สถานีอวกาศของโปรเจกต์และเควส</small></div></div>
     <div class="spacer"></div>
-    <button class="clock" id="bClock" aria-label="เวลาในบ้าน ลองดูเวลาอื่น"><svg class="i" id="clkIco" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/></svg><b id="clkT">--:--</b><small id="clkP"></small></button>
-    <button class="btn" id="bTheme" aria-label="เปลี่ยนธีม"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M3 15c2-5 16-9 18-4M21 9c-2 5-16 9-18 4"/></svg><span class="t" id="themeT">ธีม</span></button>
+    <button class="clock" id="bClock" aria-label="เวลาในสถานี ลองดูเวลาอื่น"><svg class="i" id="clkIco" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/></svg><b id="clkT">--:--</b><small id="clkP"></small></button>
+    <button class="btn" id="bTheme" aria-label="เลือกธีม / แมพ" aria-haspopup="true" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M3 15c2-5 16-9 18-4M21 9c-2 5-16 9-18 4"/></svg><span class="t" id="themeT">Space Station</span></button>
     <button class="btn" id="bRoof" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M2.5 12 12 4l9.5 8M5 10.5V20h14v-9.5"/></svg><span class="t" id="roofT">เปิดหลังคา</span></button>
     <button class="btn pri" id="bTv"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span class="t">เปิดทีวี</span></button>
   </header>
+  <div class="thmenu glass" id="thMenu" role="menu" aria-label="เลือกธีม">
+    <div class="cap">เลือกแมพ</div>
+    <button role="menuitem" class="thi on" data-th="space"><b>Space Station</b><small>สถานีอวกาศ · ใช้งานอยู่</small></button>
+    <button role="menuitem" class="thi" data-th="wizard"><b>Wizard Tower</b><small>หอคอยเวทมนตร์และสวนสมุนไพร</small></button>
+    <button role="menuitem" class="thi" data-th="cafe"><b>Coffee Cafe</b><small>คาเฟ่พร้อมสวนและชั้นลอย</small></button>
+    <button role="menuitem" class="thi" data-th="arcade"><b>Retro Arcade</b><small>โลกเกมเรโทรและเมืองนีออน</small></button>
+  </div>
   <div class="timebar glass" id="timebar"><span id="tbL">12:00</span><input type="range" id="tbR" min="0" max="23.99" step="0.05" aria-label="เลื่อนเวลา"><button class="btn sm" id="tbNow">ตามเวลาจริง</button></div>
 
   <div class="chips glass" id="chips" role="group" aria-label="เลือกห้อง"></div>
-  <div class="hint glass" id="hint">คลิกของในบ้านเพื่อดูโปรเจกต์ หรือคลิกทีวีเพื่อเปิดแดชบอร์ด</div>
+  <div class="hint glass" id="hint">คลิกของในสถานีเพื่อดูโปรเจกต์ หรือคลิกทีวีเพื่อเปิดแดชบอร์ด</div>
 
   <div class="legend glass">
-    <div class="cap">วิธีอ่านบ้าน</div>
+    <div class="cap">โปรเจกต์ในโลกของคุณ</div>
     <span><svg viewBox="0 0 16 16"><rect x="6.5" y="1" width="3" height="14" rx="1.5" fill="#e9dcc8"/><rect x="6.5" y="7" width="3" height="8" rx="1.5" fill="#d9683a"/></svg>แท่งข้างของ = ความคืบหน้า</span>
     <span><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="4" fill="#2f9e8f"/></svg>ลูกกลม = กำลังทำ</span>
     <span><svg viewBox="0 0 16 16"><path d="M3 3h10L8 14z" fill="#f5b82e"/></svg>กรวยเหลือง = วางแผน</span>
@@ -303,7 +362,7 @@ button.tvc:hover{border-color:var(--c,var(--ta));background:#212638}
     <button id="zOut" aria-label="ซูมออก"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
     <button id="rL" aria-label="หมุนซ้าย"><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.6h4.6"/></svg></button>
     <button id="rR" aria-label="หมุนขวา"><svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v4.6h-4.6"/></svg></button>
-    <button id="zHome" aria-label="ดูทั้งบ้าน"><svg class="i" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8h-5v-5H9v5H4v-8Z"/></svg></button>
+    <button id="zHome" aria-label="ดูทั้งสถานี"><svg class="i" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8h-5v-5H9v5H4v-8Z"/></svg></button>
   </div>
 
   <div class="card glass" id="card" role="dialog" aria-label="รายละเอียดของที่เลือก"></div>

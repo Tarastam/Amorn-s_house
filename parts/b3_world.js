@@ -5,7 +5,7 @@ var items=[],markers=[],pickables=[],built=0,clock=0;
 var ring=new T.Mesh(new T.RingGeometry(2.1,2.4,40),new T.MeshBasicMaterial({color:0x2e2638,transparent:true,opacity:.9,side:T.DoubleSide}));
 ring.rotation.x=-PI/2;ring.position.y=.7;ring.visible=false;scene.add(ring);
 var DESKS={deskMonitor:1,laptopDesk:1,tradingDesk:1,tableLaptop:1,barLaptop:1};
-function baseY(r){return r.k==='garden'?0:(r.k==='pool'?.5:.55)}
+function baseY(r){return floorHeight(r)}
 function makeMarker(st,c,h){
   var m;
   if(st==='active'){m=new T.Mesh(new T.SphereGeometry(.3,14,10),GLOW(c,.85))}
@@ -54,39 +54,7 @@ ROOMS.forEach(function(r){var el=document.createElement('div');el.className='lab
   el.addEventListener('pointerdown',function(e){e.stopPropagation();flyRoom(r.k)});r.el=el});
 
 /* ================= characters ================= */
-var SKIN=0xf0c19a,HAIR=0x2b211d,SHIRT=SP?0xb4c0d4:0x3f9e8d,PANTS=SP?0x44506a:0x35405e,SHOE=SP?0x1f2638:0x3a2c26;
-function limb(w,l,c,x,y,z,p){var g=new T.Group();box(w,l,w*1.05,c,0,-l/2,0,g);g.position.set(x,y,z);p.add(g);return g}
-function makeAmorn(){
-  var g=new T.Group(),body=new T.Group();g.add(body);
-  var lg=[limb(.36,1.05,PANTS,-.24,1.05,0,body),limb(.36,1.05,PANTS,.24,1.05,0,body)];
-  lg.forEach(function(l){box(.4,.22,.62,SHOE,0,-1.0,.12,l,true)});
-  box(.98,1.0,.6,SHIRT,0,1.58,0,body);box(.98,.12,.62,0x2d7f71,0,1.08,0,body,true);
-  var ar=[limb(.3,1.0,SHIRT,-.65,2.0,0,body),limb(.3,1.0,SHIRT,.65,2.0,0,body)];ar.forEach(function(a){ball(.16,SKIN,0,-1.02,0,a)});
-  box(.22,.2,.22,SKIN,0,2.15,0,body,true);
-  var hd=new T.Group();hd.position.set(0,2.45,0);body.add(hd);ball(.36,SKIN,0,0,0,hd);box(.78,.2,.78,HAIR,0,.28,-.02,hd,true);box(.74,.34,.2,HAIR,0,.12,-.3,hd,true);
-  box(.08,.1,.06,DARK,-.14,.02,.33,hd,true);box(.08,.1,.06,DARK,.14,.02,.33,hd,true);box(.2,.04,.04,0xb86e5c,0,-.14,.34,hd,true);
-  if(SP){box(.34,.3,.04,GLOW(0x36d6ff,.85),.24,1.75,.32,body,true);box(.98,.1,.62,0x36d6ff,0,2.0,0,body,true);box(.14,.7,.64,0xff7a3c,-.5,1.55,0,body,true);box(.14,.7,.64,0xff7a3c,.5,1.55,0,body,true)}
-  g.scale.setScalar(1.1);
-  var hit=new T.Mesh(G(1.6,3.2,1.6),new T.MeshBasicMaterial({visible:false}));hit.position.y=1.6;hit.userData.keep=true;g.add(hit);g.userData.sel='__amorn';
-  g.rotation.order='YXZ';scene.add(g);
-  return {g:g,body:body,lg:lg,ar:ar,hd:hd};
-}
-function makeDog(){
-  var g=new T.Group(),body=new T.Group();g.add(body);
-  var BK=0x23242c,WH=0xf7f4ee;
-  box(1.5,.62,.62,BK,0,.78,0,body);box(.62,.64,.64,WH,.62,.72,0,body,true);box(.6,.5,.68,BK,-.6,.8,0,body,true);
-  var hd=new T.Group();hd.position.set(1.0,1.05,0);body.add(hd);box(.56,.5,.5,BK,0,0,0,hd);box(.46,.3,.34,WH,.38,-.1,0,hd,true);box(.12,.1,.12,DARK,.62,-.02,0,hd,true);
-  box(.06,.1,.06,0xffd45a,.2,.1,.15,hd,true);box(.06,.1,.06,0xffd45a,.2,.1,-.15,hd,true);box(.16,.34,.12,BK,-.02,.24,.26,hd,true).rotation.z=.4;box(.16,.34,.12,BK,-.02,.24,-.26,hd,true).rotation.z=.4;
-  box(.08,.5,.3,WH,.12,.1,0,hd,true);
-  var tail=new T.Group();tail.position.set(-.78,.9,0);body.add(tail);box(.8,.2,.22,BK,-.38,0,0,tail,true).rotation.z=-.25;box(.3,.22,.24,WH,-.8,-.1,0,tail,true);
-  var legs=[];[[.5,.24],[.5,-.24],[-.5,.24],[-.5,-.24]].forEach(function(p){var l=new T.Group();l.position.set(p[0],.55,p[1]);body.add(l);box(.18,.55,.18,BK,0,-.27,0,l);box(.2,.16,.2,WH,0,-.5,.0,l,true);legs.push(l)});
-  if(SP)box(.14,.1,.7,GLOW(0x36d6ff,.9),.82,.95,0,body,true);
-  g.scale.setScalar(1.15);
-  var hit=new T.Mesh(G(2.4,1.6,1.2),new T.MeshBasicMaterial({visible:false}));hit.position.y=.8;hit.userData.keep=true;g.add(hit);g.userData.sel='__dog';
-  scene.add(g);
-  return {g:g,body:body,hd:hd,tail:tail,legs:legs};
-}
-var amorn=makeAmorn(),dog=makeDog();
+var amorn=buildHuman(wardrobe.human,true),dog=buildDog(wardrobe.dog,true);
 
 /* walking graph (doors + room centres) */
 var NODES={gym:[-16,-6.5],office:[-5,-6.5],bed:[5.5,-6.5],bath:[16.5,-6.5],garage:[-16,6.5],kitchen:[-5,6.5],livA:[5.5,5.2],livB:[16.5,5.2],
@@ -95,6 +63,7 @@ var NODES={gym:[-16,-6.5],office:[-5,-6.5],bed:[5.5,-6.5],bath:[16.5,-6.5],garag
 var EDGES=[['gym','d_go'],['d_go','office'],['office','d_ob'],['d_ob','bed'],['bed','d_bb'],['d_bb','bath'],['gym','d_gg'],['d_gg','garage'],['office','d_ok'],['d_ok','kitchen'],
  ['bed','d_bl'],['d_bl','livA'],['bath','d_tl'],['d_tl','livB'],['garage','d_gk'],['d_gk','kitchen'],['kitchen','d_kl'],['d_kl','livA'],['livA','livB'],['livA','frontIn'],['frontIn','frontOut'],['frontOut','garden'],
  ['livB','slideIn'],['slideIn','slideOut'],['slideOut','pool']];
+if(!SP)EDGES=EDGES.filter(function(e){return !(['gym|d_gg','d_gg|garage','office|d_ok','d_ok|kitchen','bath|d_tl','d_tl|livB'].includes(e.join('|')))});
 var ADJ={};EDGES.forEach(function(e){(ADJ[e[0]]=ADJ[e[0]]||[]).push(e[1]);(ADJ[e[1]]=ADJ[e[1]]||[]).push(e[0])});
 function nodeAt(x,z){
   if(x>22.3&&z>-6&&z<14.6)return 'pool';
@@ -107,7 +76,7 @@ function pathTo(from,to){
   while(q.length){var n=q.shift();if(n===to)break;(ADJ[n]||[]).forEach(function(m){if(!seen[m]){seen[m]=1;prev[m]=n;q.push(m)}})}
   var out=[],c=to;while(c){out.unshift(c);c=prev[c]}return out;
 }
-function yAt(x,z){if(x>=-22&&x<=22&&z>=-13&&z<=13)return .55;if(x>22&&z>-6&&z<14.6&&x<44.2)return .5;return 0}
+function yAt(x,z){if(x>=-22&&x<=22&&z>=-13&&z<=13)return .55+(!SP?(x>=4.1&&x<=7.1&&z<1&&z>=-6.5?GALLERY*clamp((1-z)/7.5,0,1):z<0?GALLERY:0):0);if(x>22&&z>-6&&z<14.6&&x<44.2)return .5;return 0}
 function mkAgent(o,speed,x,z){o.x=x;o.z=z;o.y=yAt(x,z);o.h=0;o.ht=0;o.path=[];o.speed=speed;o.mode='idle';o.phase=0;o.rest=0;o.destV=0;return o}
 mkAgent(amorn,4.8,-5,-4);mkAgent(dog,6.4,4,9);
 amorn.text='';amorn.cur=null;amorn.idleT=0;dog.followV=-1;dog.t=0;
@@ -133,7 +102,7 @@ function sendAmorn(it){
   if(!it||sleepHour())return;var d=destFor(it);amorn.cur=d;amorn.destV++;amorn.idleT=0;
   setPath(amorn,d.x,d.z,d.node,d.face);amorn.mode='walk';amorn.sleepy=false;
 }
-var SLEEPX=SP?8.8:6.8; /* bed centre x */
+var SLEEPX=8.8; /* bed centre x */
 function sleepHour(){var h=TM.h;return h>=23||h<6}
 function goSleep(){
   var d={node:'bed',x:SLEEPX,z:-6.2,face:PI,mode:'sleep',text:'หลับอยู่ Zzz'};amorn.cur=d;amorn.destV++;
@@ -162,8 +131,10 @@ function pickRoam(){
 }
 var tmpV=new T.Vector3();
 function poseAgents(dt){
+  if(wardrobeOpen)return;
   /* ---- Amorn ---- */
   var a=amorn,moving=a.mode==='walk';
+  if(reduced&&a.path.length){var end=a.path[a.path.length-1];a.x=end[0];a.z=end[1];a.path=[];arrive(a);moving=false}
   if(a.path.length){
     var p=a.path[0],dx=p[0]-a.x,dz=p[1]-a.z,d=Math.hypot(dx,dz),stp=a.speed*dt;
     if(d<=stp){a.x=p[0];a.z=p[1];a.path.shift();if(!a.path.length)arrive(a)}else{a.x+=dx/d*stp;a.z+=dz/d*stp;a.ht=Math.atan2(dx,dz)}
@@ -174,7 +145,8 @@ function poseAgents(dt){
   }
   if(sleep){a.x=SLEEPX;a.z=-9.3;a.ht=0}
   a.h=angLerp(a.h,a.ht,1-Math.exp(-(swim?30:11)*dt));
-  var ty=swim?.98:(sleep?2.18:yAt(a.x,a.z));a.y+=(ty-a.y)*(1-Math.exp(-12*dt));
+  var ty=swim?.98:(sleep?2.18+GALLERY:yAt(a.x,a.z));a.y+=(ty-a.y)*(1-Math.exp(-12*dt));
+  if(reduced)a.y=ty;
   a.phase+=dt*(moving?9:0);var s=Math.sin(a.phase)*.75,bob=moving?Math.abs(Math.sin(a.phase))*.08:0;
   var g=a.g,b=a.body;
   g.position.set(a.x,a.y,a.z);g.rotation.y=a.h;
@@ -192,10 +164,12 @@ function poseAgents(dt){
   a.lg[0].rotation.x=legX[0];a.lg[1].rotation.x=legX[1];a.ar[0].rotation.x=armX[0];a.ar[1].rotation.x=armX[1];a.ar[0].rotation.z=armZ[0];a.ar[1].rotation.z=armZ[1];a.hd.rotation.x=hdX;
   /* ---- dog ---- */
   var o=dog,om=o.mode==='walk';
+  if(reduced&&o.path.length){var endDog=o.path[o.path.length-1];o.x=endDog[0];o.z=endDog[1];o.path=[];arrive(o);om=false}
   if(o.path.length){var q=o.path[0],ex=q[0]-o.x,ez=q[1]-o.z,ed=Math.hypot(ex,ez),es=o.speed*dt;
     if(ed<=es){o.x=q[0];o.z=q[1];o.path.shift();if(!o.path.length)arrive(o)}else{o.x+=ex/ed*es;o.z+=ez/ed*es;o.ht=Math.atan2(ex,ez)}}
   o.h=angLerp(o.h,o.ht,1-Math.exp(-12*dt));
   o.y+=(((o.mode==='sleep')?.45+(yAt(o.x,o.z)):yAt(o.x,o.z))-o.y)*(1-Math.exp(-10*dt));
+  if(reduced)o.y=yAt(o.x,o.z)+(o.mode==='sleep'?.45:0);
   o.phase+=dt*(om?15:0);var ds=Math.sin(o.phase)*.7;
   o.g.position.set(o.x,o.y-(o.mode==='sleep'?.4:0),o.z);o.g.rotation.y=o.h+PI/2*0;
   /* dog model faces +x locally: rotate so its forward (+x) follows heading (+z) */

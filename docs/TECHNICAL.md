@@ -8,7 +8,7 @@ The owner is a production supervisor who builds apps with AI assistance. Keep ch
 
 ## Concept
 
-- A modern mono-pitch house on a floating diorama lot with a warm dollhouse look. One committed light theme.
+- A modular space station (Space Station theme) shown as an isometric diorama. Layout and logic are theme-independent so more themes can be added.
 - Sky, sunlight, window glow and the in-house clock follow the **viewer's real local time**. A time slider overrides it temporarily.
 - Nine areas on a floor plan. Each project-type room holds that area's projects as 3D props:
 
@@ -24,7 +24,7 @@ The owner is a production supervisor who builds apps with AI assistance. Keep ch
 | `bath` | ห้องน้ำ · สมาธิ | Bathroom, meditation | weekly routine |
 | `pool` | สระว่ายน้ำ | Pool | weekly routine, outdoor |
 
-- Characters: **Amorn** (male, voxel style) and a **Border Collie** dog. They walk between rooms, sit at desks, work out, meditate, swim and sleep (Amorn sleeps 23:00–06:00; the dog follows him and sleeps on its bed).
+- Characters: **Amorn** (male, rounded stylized figure) and a **Border Collie** dog. They walk between rooms, sit at desks, work out, meditate, swim and sleep (Amorn sleeps 23:00–06:00; the dog follows him and sleeps on its bed).
 - **Dashboard = the TV in the living room.** Clicking it, or the "เปิดทีวี" header button, opens a full-screen TV overlay with tabs: quests, projects, week, trophies, summary. There is no side panel.
 - A trophy shelf in 3D shows badges derived from the data.
 - A roof button (open/close) lifts and fades the roof so the interior is visible. Front-facing exterior walls drop in height while the roof is open.
@@ -61,16 +61,50 @@ mkdir -p site && { printf '<!doctype html>\n<html lang="th">\n<head>\n<meta char
 
 The parts are concatenated into one `<script>` IIFE scope (`b1` opens `(function(){'use strict'; ...`, `b4` closes it). So a name defined in one part is visible in the later ones. **Function names are global to that scope: avoid collisions** (a past bug: a picture-frame helper named `frame()` clashed with the render loop, so the helper is `pframe`).
 
-## Themes
+## Themes and wardrobe (15 October 2026)
 
-Two themes share one codebase, layout and logic: **space** (default, Space Station) and **home** (legacy warm house, to be removed when all four new themes exist). Selected by `?theme=space|home` or `localStorage['lifehouse.theme']`; the header button switches and reloads. In code: `THEME`, boolean `SP` (b1_core.js).
+All four maps are available from the theme menu: `space`, `cafe`, `arcade`, `wizard`.
+`?theme=` takes precedence over `localStorage['lifehouse.theme']`. Invalid choices fall back to space.
+Switching maps reloads the standalone page; project and routine data stays in `lifehouse.v2`.
 
-- Room rectangles of the core 4x2 grid, doorways, walking nodes, data model and UI are shared by both themes, so Amorn, the dog, pathfinding, the TV dashboard and picking work unchanged. Space overrides only a few things in b1_core.js (after `room()`): garden becomes a compact annex (x 0..22, z 13..31) with its own slots, and the `work` and `growth` slots change to make room for the rover and twin beds. `SLEEPX` (b3) is the bed x.
-- b1_core.js: palette vars (`WALLC`, `TRIM`, `CAPC`), `KFSPACE`/`KFHOME` lighting keyframes, `SP` branches in `applyTime`, glow decals, room names (`SPN`). The legacy house builders (`rooms_floor`, `buildShell`, `buildRoof`) run only when `!SP`.
-- b2s_space.js (only runs when `SP`): `PROPS.*` overrides, then `spBuildStation()` builds the modular hull: `spFloors`, `spWalls` (back/left/front/right + four 45 degree corner walls registered in `extWalls` so the cutaway still works), `buildPartitions` (shared), `spDoorFrames`, `spRoof` (chamfered lid), `spHull` (bevelled bases for core, spa and annex), `spExterior` (glass ring dome via `spDome`, tube modules via `spTube`, towers, solar wings). Helpers: `chamf()` (chamfered outline), `plate()` (extruded outline slab), `wallSeg()`, `GLASS`. Then `spaceLiving()`, `spaceOther()` (interiors, twin beds, rover in hangar, spa) and `spaceOutdoor()` (annex decor, glass rail, spa greenhouse). Legacy decor builders are skipped via `if(!SP)` at the end of b2_props.js.
-- a_head.html: `.theme-space` CSS variables and overrides, CSS Earth (`#orb`) and moon (`#moon`).
-- Add a new theme by following the same pattern: palette in b1, a `bNs_<theme>.js` part with prop overrides and decor at the same coordinates, CSS block, and an entry in the theme switch.
-- Room labels are renamed per theme (`SPN`); the underlying room keys (`work`, `apps`, ...) stay the same because project data refers to them.
+- `b2s_space.js` builds Space Station only when `SP` is true. Its palette now uses ivory hulls,
+  warm habitat floors, a timber lounge table and chamfered room pods.
+- `b2t_themes.js` builds the other maps, their props, textured surfaces, lighting and architecture.
+  Cafe has a conservatory, espresso/pastry counter, mezzanine and umbrella patio. Arcade has
+  game cabinets, foosball, pinball, cyan/magenta lights and a skyline. Wizard has a three-tier
+  cutaway, turrets, arched windows, library, alchemy, fireplaces and an observatory terrace.
+- Shared room IDs retain the existing task associations. Rear rooms have `level=7` in Cafe/Arcade
+  and `level=14` in Wizard. `floorHeight`, `yAt`, camera elevation, item positions and labels share
+  these heights. Walking routes to the upper floor go through the staircase at x=5.5,
+  z=1..-6.5. The wizard's middle gallery is decorative; the task rooms are ground/upper floor.
+- Keep project slots and walking nodes clear of static furniture. The non-space kitchen slots
+  deliberately avoid the counter/fireplace; the arcade foosball table lives on the terrace.
+- `mergeStatic` preserves UVs for procedural wood/stone textures. Signs and TV screens remain
+  separate. Animated character joints merge independently, retaining the rig hierarchy.
+- The geometry is a stylized interpretation of the reference images, not a photorealistic replica.
+  The space layout still uses a shared central floor with connected exterior modules.
+
+`b2c_characters.js` builds rounded Amorn and Border Collie models. The existing walking/sitting/
+exercise/sleep rigs remain connected. `b4w_wardrobe.js` supplies the dressing-room dialog:
+
+- 5 human outfits, 6 dog outfit options (including no clothing), theme presets, accessories,
+  human shirt/trousers/skin/hair colors and dog clothing/fur colors.
+- Separate 3D preview with rotation controls; drafts are applied only on Save. Cancel/Escape
+  discards changes. The modal traps focus and makes background controls inert.
+- `lifehouse.wardrobe` stores validated human/dog choices independently from task data and
+  applies the same saved look across maps. Without saved choices, each map gets matching outfits.
+- Storage denial keeps the app usable and explains that the current look cannot persist.
+- Click a character in the scene or the header clothing button to open the dressing room.
+
+Build with `node build.js` (Windows/macOS/Linux), or `sh build.sh`. The ordered source list is
+`a_head`, `b1_core`, `b2_props`, `b2s_space`, `b2t_themes`, `b2c_characters`, `b3_world`,
+`b4w_wardrobe`, `b4_ui`. All three HTML outputs are generated; no bundler is needed.
+
+Run `node tests/themes.js` (or `npm test` in tests). The harness uses installed Chrome on Windows,
+accepts a `CHROME` executable override, and serves Three.js locally without network requests.
+It checks theme-menu navigation, all TV tabs, task persistence, elevated navigation, wardrobe
+presets/outfits/colors, cancel/save/reload/cross-map persistence, mobile layouts, night/roof mode,
+and malformed/unavailable browser storage. Screenshots are in `tests/shots/themes/`.
 
 ## Tech notes
 
@@ -120,7 +154,7 @@ Playwright-core with Chromium at `/opt/pw-browsers/chromium` and software GL (`-
 
 - Software GL runs at about 1.3 fps, so tests set `reducedMotion:'reduce'` and **teleport** the camera or agents instead of waiting for animation.
 - Test hook: `window.__lh` exposes `theme, renderer, trophyG, scene, st, tv, S, setTime(h), openTV(tab), closeTV, setRoof(bool), select(id), cs (camera state), items, amorn, dog, roofT`.
-- Theme for tests: default is space; `THEME=home node run.js desk steps.json` renders the legacy house. Space steps: `steps_space.json`. Room close-ups: `document.querySelector('[data-f=income]').click()` (kitchen) or `[data-f=apps]` (office). Use `__lh.setTime(13)` for daylight and `__lh.setRoof(true)` to open the roof.
+- Theme for tests: Space steps: `steps_space.json`. Room close-ups: `document.querySelector('[data-f=income]').click()` (kitchen) or `[data-f=apps]` (office). Use `__lh.setTime(13)` for daylight and `__lh.setRoof(true)` to open the roof.
 - Checklist before publishing: no `pageerror`/console errors on desktop (1440×860) and phone (400×820); TV tabs open; a quest toggle and a week toggle persist; the garage's 6-project limit refuses a 7th; screenshots of any room you changed.
 
 ## Working rules
